@@ -46,8 +46,8 @@ Tested on **Fedora 44**, kernel **7.0.4-200.fc44.x86_64**.
 | Display / GPU (Radeon 840M) | ✅ Working | Minor visual glitching reported — see [#2](issues/display/README.md) |
 | Suspend / Resume | ✅ Working | |
 | Keyboard | ✅ Working | |
-| Touchscreen (Wacom WACF2200) | ❌ Broken | I2C arbitration failure — see [#1](issues/touchscreen/README.md) |
-| Stylus | ❌ Broken | Same controller as touchscreen |
+| Touchscreen (Wacom WACF2200) | ✅ Working | 7.1.0-rc2+ | Requires patch series — see [#1](issues/touchscreen/README.md) |
+| Stylus | ✅ Working | 7.1.0-rc2+ | Same patch series as touchscreen |
 | NPU (XDNA2) | ❓ Untested | |
 
 ---

@@ -1,7 +1,6 @@
 # Issue #1 — Touchscreen / Stylus Non-functional
 
-**Status:** 🔴 Open — Active investigation  
-**Affected components:** Wacom WACF2200 (touchscreen + stylus), ELAN06FA (secondary touchscreen)  
+**Status:** 🟡 Patch submitted — Pending upstream review**Affected components:** Wacom WACF2200 (touchscreen + stylus), ELAN06FA (secondary touchscreen)  
 **Confirmed working in:** UEFI/BIOS, Windows  
 **Kernel:** 7.0.4-200.fc44.x86_64  
 **Distro:** Fedora 44  
@@ -96,6 +95,10 @@ Boot Windows (working), dump GPIO registers with RWEverything. Boot Linux, dump 
 | 2026-05-09 | Filed kernel bugzilla report with full diagnostics | Open — no response yet |
 | 2026-05-09 | Cross-referenced Bug 221454 (FocalTech, identical symptoms) | Confirmed shared failure signature |
 | 2026-05-10 | Created public tracking repo | — |
+| 2026-05-10 | Identified GPIO 157 IRQ bits cleared by amd_gpio_irq_init() via Windows/Linux register diff | Confirmed root cause 1 |
+| 2026-05-11 | Identified broken probe ordering deferral in i2c-designware-platdrv.c | Confirmed root cause 2 |
+| 2026-05-12 | Built and tested two-patch fix on kernel 7.1.0-rc2+ | Touch and stylus working, 4 stable reboots |
+| 2026-05-12 | Patch series submitted to linux-gpio and linux-i2c mailing lists | Pending review |
 
 ---
 
