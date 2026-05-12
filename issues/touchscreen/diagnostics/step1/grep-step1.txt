@@ -1,0 +1,60 @@
+407:                Method (_STA, 0, NotSerialized)  // _STA: Status
+424:                Method (_STA, 0, NotSerialized)  // _STA: Status
+441:                Method (_STA, 0, NotSerialized)  // _STA: Status
+458:                Method (_STA, 0, NotSerialized)  // _STA: Status
+475:                Method (_STA, 0, NotSerialized)  // _STA: Status
+492:                Method (_STA, 0, NotSerialized)  // _STA: Status
+509:                Method (_STA, 0, NotSerialized)  // _STA: Status
+526:                Method (_STA, 0, NotSerialized)  // _STA: Status
+543:                Method (_STA, 0, NotSerialized)  // _STA: Status
+560:                Method (_STA, 0, NotSerialized)  // _STA: Status
+577:                Method (_STA, 0, NotSerialized)  // _STA: Status
+594:                Method (_STA, 0, NotSerialized)  // _STA: Status
+715:    Name (TPOS, 0x80)
+763:        TOPD,   8, 
+1014:            Method (_STA, 0, NotSerialized)  // _STA: Status
+1019:                    M460 ("PLA-ASL-\\_SB.PWRB._STA = 0xB\n", Zero, Zero, Zero, Zero, Zero, Zero)
+1023:                Return (PSTA) /* \_SB_.PWRB._STA.PSTA */
+1044:            Method (_STA, 0, NotSerialized)  // _STA: Status
+1049:                    M460 ("PLA-ASL-\\_SB.BTNS._STA = 0xB\n", Zero, Zero, Zero, Zero, Zero, Zero)
+1053:                Return (PSTA) /* \_SB_.BTNS._STA.PSTA */
+1353:            Method (_STA, 0, NotSerialized)  // _STA: Status
+1759:                    Method (_STA, 0, NotSerialized)  // _STA: Status
+2510:                                Method (_STA, 0, NotSerialized)  // _STA: Status
+2820:                                Method (_STA, 0, NotSerialized)  // _STA: Status
+3018:                Method (_STA, 0, NotSerialized)  // _STA: Status
+3191:                    Method (_STA, 0, NotSerialized)  // _STA: Status
+3193:                        M460 ("PLA-ASL-\\_SB.PCI0.LPC0.EC0._STA = 0xF\n", Zero, Zero, Zero, Zero, Zero, Zero)
+4528:                    CreateByteField (BUFF, Zero, TPD1)
+4529:                    CreateByteField (BUFF, One, TPD2)
+4541:                                    TPD1 = M011 (0xFED81500, 0x75, Zero, 0x08)
+4542:                                    TPD1 |= 0x20
+4543:                                    M012 (0xFED81500, 0x75, Zero, 0x08, TPD1)
+4544:                                    TPD2 = M011 (0xFED81500, 0x77, Zero, 0x08)
+4545:                                    TPD2 |= 0x08
+4546:                                    M012 (0xFED81500, 0x77, Zero, 0x08, TPD2)
+10647:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+10649:                            M460 ("PLA-ASL-\\_SB.ACAD._STA = 0xF\n", Zero, Zero, Zero, Zero, Zero, Zero)
+10692:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+10829:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+11056:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+11834:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+12426:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+12866:                        Method (_STA, 0, NotSerialized)  // _STA: Status
+17044:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17072:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17116:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17132:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17172:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17253:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17334:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17415:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17484:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17554:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17626:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17698:            Method (_STA, 0, NotSerialized)  // _STA: Status
+17770:            Method (_STA, 0, NotSerialized)  // _STA: Status
+18014:            Method (_STA, 0, NotSerialized)  // _STA: Status
+18109:            Method (_STA, 0, NotSerialized)  // _STA: Status
+18200:            Method (_STA, 0, NotSerialized)  // _STA: Status
+18291:            Method (_STA, 0, NotSerialized)  // _STA: Status

@@ -1,0 +1,2 @@
+name [pinmux] [pinconf]
+AMDI0030:00 no yes

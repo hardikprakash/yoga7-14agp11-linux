@@ -1,0 +1,2 @@
+Requested pin control handlers their pinmux maps:
+device: AMDI0030:00 current state: none
