@@ -1,0 +1,132 @@
+From 99aaad74e757b2cefd0db6e46742a2b9da623812 Mon Sep 17 00:00:00 2001
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Tue, 12 May 2026 12:40:10 +0530
+Subject: [PATCH 2/2] i2c: designware: fix probe ordering for AMD GPIO on
+ Lenovo Yoga 7 14AGP11
+
+The existing dw_i2c_amd_gpio_defer_dmi quirk for Lenovo 83TD checks
+gpio_dev->driver to determine if the GPIO controller is ready, but
+this pointer is set before pinctrl-amd's probe completes, causing
+i2c_designware to probe AMDI0010:02 before the GPIO IRQ quirk runs.
+
+Switch to device_is_bound() under device_lock() to correctly defer
+until GPIO probe has fully completed. Also replace the string-based
+device lookup with ACPI HID/UID matching for robustness, and add
+DMI_BOARD_NAME to the DMI match to reduce false positives.
+
+Fixes: the lost arbitration on AMDI0010:02 at boot on Lenovo 83TD.
+
+Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 81 +++++++++++++++++++++
+ 1 file changed, 81 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 3351c4a9ef118..ccf4433a1d4fa 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -8,6 +8,7 @@
+  * Copyright (C) 2007 MontaVista Software Inc.
+  * Copyright (C) 2009 Provigent Ltd.
+  */
++#include <linux/acpi.h>
+ #include <linux/clk-provider.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -86,6 +87,82 @@ static const struct dmi_system_id dw_i2c_hwmon_class_dmi[] = {
+ 	{ } /* terminate list */
+ };
+ 
++static const struct dmi_system_id dw_i2c_amd_gpio_defer_dmi[] = {
++	{
++		.ident = "Lenovo Yoga 7 14AGP11",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "83TD"),
++			DMI_MATCH(DMI_BOARD_NAME, "LNVNB161216"),
++		},
++	},
++	{ } /* terminate list */
++};
++
++struct dw_i2c_hid_uid {
++	const char *hid;
++	u64 uid;
++};
++
++static int dw_i2c_match_hid_uid(struct device *dev, const void *data)
++{
++	struct acpi_device *adev = ACPI_COMPANION(dev);
++	const struct dw_i2c_hid_uid *id = data;
++
++	if (!adev)
++		return 0;
++
++	return acpi_dev_hid_uid_match(adev, id->hid, id->uid);
++}
++
++static struct device *dw_i2c_find_platform_hid_uid(const char *hid, u64 uid)
++{
++	struct dw_i2c_hid_uid data = {
++		.hid = hid,
++		.uid = uid,
++	};
++
++	return bus_find_device(&platform_bus_type, NULL, &data, dw_i2c_match_hid_uid);
++}
++
++static bool dw_i2c_needs_amd_gpio_dep(struct device *device)
++{
++	struct acpi_device *adev = ACPI_COMPANION(device);
++
++	if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
++		return false;
++	if (!adev)
++		return false;
++
++	return acpi_dev_hid_uid_match(adev, "AMDI0010", 2);
++}
++
++static int dw_i2c_defer_for_amd_gpio(struct device *device)
++{
++	struct device *gpio_dev;
++
++	if (!dw_i2c_needs_amd_gpio_dep(device))
++		return 0;
++
++	gpio_dev = dw_i2c_find_platform_hid_uid("AMDI0030", 0);
++	if (!gpio_dev)
++		return -EPROBE_DEFER;
++
++	device_lock(gpio_dev);
++	if (!device_is_bound(gpio_dev)) {
++		device_unlock(gpio_dev);
++		put_device(gpio_dev);
++		return -EPROBE_DEFER;
++	}
++	device_unlock(gpio_dev);
++
++	if (!device_link_add(device, gpio_dev, DL_FLAG_AUTOREMOVE_CONSUMER))
++		dev_warn(device, "failed to add device link to AMDI0030:00\n");
++
++	put_device(gpio_dev);
++	return 0;
++}
++
+ static const struct i2c_dw_semaphore_callbacks i2c_dw_semaphore_cb_table[] = {
+ #ifdef CONFIG_I2C_DESIGNWARE_BAYTRAIL
+ 	{
+@@ -138,6 +215,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev;
+ 	int irq, ret;
+ 
++	ret = dw_i2c_defer_for_amd_gpio(device);
++	if (ret)
++		return ret;
++
+ 	irq = platform_get_irq_optional(pdev, 0);
+ 	if (irq == -ENXIO)
+ 		flags |= ACCESS_POLLING;
+-- 
+2.54.0
+

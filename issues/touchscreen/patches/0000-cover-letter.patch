@@ -1,0 +1,48 @@
+From 99aaad74e757b2cefd0db6e46742a2b9da623812 Mon Sep 17 00:00:00 2001
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Tue, 12 May 2026 12:40:15 +0530
+Subject: [PATCH 0/2] Fix WACF2200 touchscreen on Lenovo Yoga 7 14AGP11
+
+The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
+completely non-functional on Linux. The I2C bus (AMDI0010:02) fails with
+repeated lost arbitration errors at boot before any driver can probe the
+device. The touchscreen works correctly in UEFI and Windows.
+
+Investigation using ACPI _CRS decode and Windows/Linux GPIO register
+comparison identified two bugs:
+
+1. GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has INTERRUPT_ENABLE and
+   INTERRUPT_MASK cleared by amd_gpio_irq_init() and never restored,
+   preventing the device from signalling the driver. Windows keeps both
+   bits set after initialisation.
+
+2. i2c_designware probes AMDI0010:02 before pinctrl-amd's probe
+   completes. The existing dw_i2c_amd_gpio_defer_dmi quirk for this
+   hardware checks gpio_dev->driver which is set before probe finishes,
+   so the deferral does not actually enforce ordering.
+
+Patch 1 adds a DMI quirk in pinctrl-amd to restore GPIO 157 interrupt
+bits after amd_gpio_irq_init().
+
+Patch 2 fixes the existing broken deferral in i2c-designware-platdrv to
+use device_is_bound() under device_lock(), which correctly waits for
+pinctrl-amd probe to complete before AMDI0010:02 is probed.
+
+Both patches tested on Lenovo Yoga 7 14AGP11 (83TD), Fedora 44, kernel
+7.1.0-rc2+. Touch and stylus fully functional after applying both patches.
+
+Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=221494
+Related: https://bugzilla.kernel.org/show_bug.cgi?id=221454
+
+Hardik Prakash (2):
+  pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7
+    14AGP11
+  i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
+    14AGP11
+
+ drivers/i2c/busses/i2c-designware-platdrv.c | 81 +++++++++++++++++++++
+ drivers/pinctrl/pinctrl-amd.c               | 35 +++++++++
+ 2 files changed, 116 insertions(+)
+
+-- 
+2.54.0
